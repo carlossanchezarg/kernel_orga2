@@ -104,7 +104,24 @@ gdt_entry_t gdt[GDT_COUNT] = {
             .db = MODE32BITS,
             .g = GRANULARITY4KB,
             .base_31_24 = GDT_BASE_HIGH(0),
-        }
+        },
+      [GDT_IDX_VIDEO] =
+      {
+          .limit_15_0 = GDT_LIMIT_LOW(GDT_LIMIT_4KIB(8000)), // 80x50x2, quiza se necesite redondear
+          .base_15_0 = GDT_BASE_LOW(VIDEO),
+          .base_23_16 = GDT_BASE_MID(VIDEO),
+          .type = DESC_TYPE_READ_WRITE,
+          .s = DESC_CODE_DATA,
+          .dpl = DPL_KERNEL, 
+          .p = SEG_PRESENT,
+          .limit_19_16 = GDT_LIMIT_HIGH(GDT_LIMIT_4KIB(8000)),
+          .avl = AVL,
+          .l = LONG_MODE_OFF, // vamos a trabajar con el procesador en 32bits
+          .db = MODE32BITS,
+          .g = GRANULARITY4KB, 
+          .base_31_24 = GDT_BASE_HIGH(VIDEO),
+      },
+      
     
 };
 

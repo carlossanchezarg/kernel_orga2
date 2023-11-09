@@ -10,8 +10,12 @@ global start
 
 ; COMPLETAR - Agreguen declaraciones extern según vayan necesitando
 extern GDT_DESC
-
+extern IDT_DESC
+extern idt_init
 extern screen_draw_layout
+extern pic_reset
+extern pic_enable
+extern mmu_init_kernel_dir
 ; COMPLETAR - Definan correctamente estas constantes cuando las necesiten
 ;
 %define CS_RING_0_SEL (1<<3)
@@ -94,6 +98,31 @@ modo_protegido:
     ; COMPLETAR - Inicializar pantalla
     call screen_draw_layout
    
+    ; INTERRUPCIONES
+    ; Cargamos IDT en IDTR
+    call idt_init
+    lidt [IDT_DESC]
+
+    ; Remapeamos puertos del PIC
+    call pic_reset
+    call pic_enable
+    sti ; habilitamos interrupciones
+    
+    ; testear syscall
+    int 88
+    int 98
+
+    ;##### Paginación
+     
+    call mmu_init_kernel_dir
+    mov cr3, eax
+
+    ; Activar paginacion seteando el bit CR0.PG
+    mov eax, cr0
+    or eax, 0x80000000 ; 31=1 31-0=0
+    mov cr0, eax    
+
+    ;# TEST de mapeo de paginas
     ; Ciclar infinitamente 
     mov eax, 0xFFFF
     mov ebx, 0xFFFF

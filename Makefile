@@ -9,14 +9,14 @@ KERNEL_SRC=kernel.asm
 KERNEL_OBJ=kernel.o
 KERNEL_BIN=kernel.bin
 
-OBJ=$(KERNEL_OBJ) gdt.o screen.o 
+OBJ=$(KERNEL_OBJ) gdt.o screen.o idt.o isr.o pic.o keyboard_input.o mmu.o
 
 # Dependencias, generado por el flag -MMD de gcc, util para recompilar cuando actualizamos headers.
 DEP=$(OBJ:%.o=%.d)
 DISK_IMG=diskette.img
 DISK_IMG_BZ=diskette.img.bz2
 
-CFLAGS=-Wall -Wextra -pedantic -std=c99 -Werror -Og -ggdb \
+CFLAGS=-Wall -Wextra -pedantic -std=c99 -Og -ggdb \
   -m32 -march=i386 -ffreestanding -fno-pie -fno-zero-initialized-in-bss -fno-stack-protector
 
 
@@ -35,9 +35,9 @@ LDFLAGS=-static -m elf_i386 -b elf32-i386 -e start -Ttext 0x1200
 
 QUIET = @
 
-.PHONY=clean all image 
+.PHONY=clean all image
 
-all:  clean image 
+all:  clean image
 
 format:
 	clang-format -i *.h *.c
@@ -54,7 +54,7 @@ seed:
 
 -include $(DEP)
 
-kernel.bin: $(OBJ) 
+kernel.bin: $(OBJ)
 	@echo 'Linkeando kernel...'
 	$(LD) $(LDFLAGS) -o $@.elf $(OBJ)
 	@echo 'Extrayendo tabla de simbolos...'
@@ -74,7 +74,7 @@ image: kernel.bin $(DISK_IMG)
 	$(MCOPY) -o -i $(DISK_IMG) $(KERNEL_BIN) ::/
 	@echo ''
 
-$(DISK_IMG): 
+$(DISK_IMG):
 	@echo 'aca esta'
 	bzip2 -dk $(DISK_IMG_BZ)
 	@echo ''

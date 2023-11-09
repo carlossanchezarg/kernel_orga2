@@ -70,4 +70,11 @@ void screen_draw_box(uint32_t fInit, uint32_t cInit, uint32_t fSize,
 }
 
 void screen_draw_layout(void) {
+  screen_draw_box(0,0,50,80,0,C_BG_BLACK);
+  print("h", 1, 1, C_FG_GREEN);
+  print("o", 2, 1, C_FG_GREEN);
+  print("l", 3, 1, C_FG_GREEN);
+  print("a", 4, 1, C_FG_GREEN);
+  print(" mundo", 5, 2, C_FG_GREEN);
+
 }

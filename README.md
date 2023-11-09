@@ -1,6 +1,6 @@
 # Orga 2 Kernel
 
-* Para compilar y corre gdb 
+* Para compilar y correr gdb 
 ```
 make gdb
 ```

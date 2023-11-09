@@ -40,10 +40,10 @@
  * Definirlos a partir de los índices de la GDT, definidos más arriba 
  * Hint: usar operadores "<<" y "|" (shift y or) */
 
-//#define GDT_CODE_0_SEL ??
-//#define GDT_DATA_0_SEL ??
-//#define GDT_CODE_3_SEL ??
-//#define GDT_DATA_3_SEL ??
+#define GDT_CODE_0_SEL (GDT_IDX_CODE_0<<3)
+#define GDT_DATA_0_SEL (GDT_IDX_DATA_0<<3)
+#define GDT_CODE_3_SEL (GDT_IDX_CODE_3<<3)||0x3
+#define GDT_DATA_3_SEL (GDT_IDX_DATA_3<<3)||0x3
 
 
 // Macros para trabajar con segmentos de la GDT.
@@ -75,7 +75,7 @@
 /* COMPLETAR - Tamaños de segmentos */
 
 #define FLAT_SEGM_SIZE GDT_LIMIT_4KIB(817*1024*1024)  
-//#define VIDEO_SEGM_SIZE  ??
+#define VIDEO_SEGM_SIZE  GDT_LIMIT_4KIB(50*80*2)
 
 
 /* Direcciones de memoria */
@@ -90,5 +90,45 @@
 
 /***************************/
 #define STACK_BASE 0x25000
+
+/* MMU */
+/* -------------------------------------------------------------------------- */
+/* Definan:
+VIRT_PAGE_OFFSET(X) devuelve el offset dentro de la página, donde X es una dirección virtual
+VIRT_PAGE_TABLE(X)  devuelve la page table entry correspondiente, donde X es una dirección virtual
+VIRT_PAGE_DIR(X)    devuelve el page directory entry, donde X es una dirección virtual
+CR3_TO_PAGE_DIR(X)  devuelve el page directory, donde X es el contenido del registro CR3
+MMU_ENTRY_PADDR(X)  devuelve la dirección física de la base de un page frame o de un page table, donde X es el campo de 20 bits en una PTE o PDE
+*/
+
+#define VIRT_PAGE_OFFSET(X) (X & 0xFFF) // nos quedamos con 0-11 bits
+#define VIRT_PAGE_TABLE(X)  ((X >> 12) & 0x3FF) // nos quedamos con 12-21 bits
+#define VIRT_PAGE_DIR(X)    ((X >> 22) & 0x3FF) // nos quedamos con 22-31 bits
+#define CR3_TO_PAGE_DIR(X)  (X & 0xFFFFF000) // nos quedamos con 31-12 bits
+#define MMU_ENTRY_PADDR(X)  (X << 12)
+
+
+#define MMU_P (1 << 0)
+#define MMU_W (1 << 1)
+#define MMU_U (1 << 2)
+
+#define PAGE_SIZE 4096
+
+// direccion virtual del codigo
+#define TASK_CODE_VIRTUAL 0x08000000
+#define TASK_CODE_PAGES   2
+#define TASK_STACK_BASE   0x08003000
+#define TASK_SHARED_PAGE  0x08003000
+
+// direccion virtual de memoria compartida on demand
+#define ON_DEMAND_MEM_START_VIRTUAL    0x07000000
+#define ON_DEMAND_MEM_END_VIRTUAL      0x07000FFF
+#define ON_DEMAND_MEM_START_PHYSICAL   0x03000000
+
+/* Direcciones fisicas de directorios y tablas de paginas del KERNEL */
+/* -------------------------------------------------------------------------- */
+#define KERNEL_PAGE_DIR     (0x00025000)
+#define KERNEL_PAGE_TABLE_0 (0x00026000)
+#define KERNEL_STACK        (0x00025000)
 
 #endif //  __DEFINES_H__
