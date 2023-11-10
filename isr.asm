@@ -122,9 +122,18 @@ ISRNE 20
 global _isr14
 _isr14:
     pushad
-    ;push cr2; en CR2 el micro nos dice la dir virtual que produjo el #PF    
+    mov eax, cr2 
+    push eax; en CR2 el micro nos dice la dir virtual que produjo el #PF    
     call page_fault_handler
+    cmp al, 1
+    je .fin
+    .ring0_exception:
+         call kernel_exception
+         jmp $
+    .fin:  
+    add esp, 4; limpiamos la pila para que funcione bien el popad
     popad
+    add esp, 4; erro code
     iret
 
 ;; Rutina de atención del RELOJ

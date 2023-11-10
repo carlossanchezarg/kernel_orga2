@@ -4,7 +4,6 @@
 ; ==============================================================================
 
 %include "print.mac"
-
 global start
 
 
@@ -13,15 +12,20 @@ extern GDT_DESC
 extern IDT_DESC
 extern idt_init
 extern screen_draw_layout
+extern print_text_pm
 extern pic_reset
 extern pic_enable
 extern mmu_init_kernel_dir
+extern mmu_map_page
+extern mmu_unmap_page
+extern mmu_init_task_dir
+extern copy_page
 ; COMPLETAR - Definan correctamente estas constantes cuando las necesiten
 ;
 %define CS_RING_0_SEL (1<<3)
 %define DS_RING_0_SEL (3 << 3)    
 %define STACK_BASE 0x25000
-
+%define ON_DEMAND_MEM_START_VIRTUAL 0x07000000
 BITS 16
 ;; Saltear seccion de datos
 jmp start
@@ -34,6 +38,18 @@ start_rm_len equ    $ - start_rm_msg
 
 start_pm_msg db     'Iniciando kernel en Modo Protegido'
 start_pm_len equ    $ - start_pm_msg
+
+idty_mapping db     'Identity Mapping listo!',0
+idty_mapping_len equ    $ - idty_mapping
+
+mmu_ini_msg db     'Iniciando MMU..'
+mmu_ini_msg_len equ    $ - mmu_ini_msg
+
+cambia_CR3 db "Se carga en CR3 address de PD de tarea.",0
+cambia_CR3_len equ    $ - cambia_CR3
+
+restaura_CR3 db "Se restaura CR3 del kernel.",0
+restaura_CR3_len equ    $ - restaura_CR3
 
 ;;
 ;; Seccion de código.
@@ -122,7 +138,52 @@ modo_protegido:
     or eax, 0x80000000 ; 31=1 31-0=0
     mov cr0, eax    
 
-    ;# TEST de mapeo de paginas
+    ;##########TEST MAPEO Y DESMAPEO de Paginas ###############################
+     ;# Test de mapeo de direccion virtual a fisica:  0x00400000 ---> 0x0050E000
+     push 0x2; attrs=0x2 P=1  W=1
+     push 0x00400000; Dir Fisica
+     push 0x0050E000; Dir virtual
+     mov eax, cr3
+     push eax;
+     call mmu_map_page
+     add esp, 4*4
+
+     mov byte[0x50E000], 0x1
+     mov byte[ON_DEMAND_MEM_START_VIRTUAL], 0xFFFF
+     ;mov byte[0x8000000], 0xFFFF
+     
+     ;Aca desmapeo la dir virtual 0x0050E00
+     push 0x0050E000; Dir virtual
+     mov eax, cr3
+     push eax;
+     call mmu_unmap_page
+     add esp, 4*2
+
+     ;############ TEST copy_page ###############
+     ; Copio la pagina del page directory en 0x25000 a 0xB0000
+     push 0x25000; dir fisica fuente(pagina que contiene el PD)
+     push 0x50000; dir fisica destino
+     call copy_page
+     add esp, 4*2
+
+    ;############ TEST mmu_init_task_dir ###############
+    ; Se arma estructura de paginacion para tarea
+    mov eax, 0x18000
+    push eax
+    call mmu_init_task_dir
+    add esp, 4
+    ;guardo cr3 actual para luego volver
+    mov edi, cr3
+    push edi
+    ; Cambio al page directory de la tarea y entonces cambiara el mapeo de memoria virutal
+    mov cr3,eax
+    ;print_text_pm cambia_CR3, cambia_CR3_len, 0x07, 0, 800
+
+    ; Se reestablece el valor de CR3.
+    pop edi
+    mov cr3,edi
+    ;print_text_pm restaura_CR3, restaura_CR3_len, 0x07, 0, 880
+    
     ; Ciclar infinitamente 
     mov eax, 0xFFFF
     mov ebx, 0xFFFF

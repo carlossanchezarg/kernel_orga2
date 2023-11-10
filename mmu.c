@@ -236,7 +236,7 @@ paddr_t mmu_init_task_dir(paddr_t phy_start) {
 
   // Mapear una pagina de memoria compartida TASK_SHARED_PAGE -->shared
   // Atributos: 0000000 | User:1 | Read:0 | Present:1
-  mmu_map_page(cr3, (vaddr_t) TASK_SHARED_PAGE, PAGINA_COMPARTIDA_KERNEL_USER, MMU_U|MMU_W|MMU_P);
+  mmu_map_page(cr3, (vaddr_t) TASK_SHARED_PAGE, PAGINA_COMPARTIDA_KERNEL_USER, MMU_U|MMU_P);
 
   return cr3;
 
@@ -250,4 +250,9 @@ bool page_fault_handler(vaddr_t virt) {
   // Chequeemos si el acceso fue dentro del area on-demand
   // En caso de que si, mapear la pagina
   //Chequear que esta en el rango on demand
+  if(virt>=ON_DEMAND_MEM_START_VIRTUAL && virt<=ON_DEMAND_MEM_END_VIRTUAL){ 
+    mmu_map_page(rcr3(), virt, ON_DEMAND_MEM_START_PHYSICAL, MMU_W| MMU_P);
+    return true;
+  }
+  return false;
 }
