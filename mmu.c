@@ -14,6 +14,11 @@
 // Esta página la usan las tareas para comunicarse con el kernel.
 #define PAGINA_COMPARTIDA_KERNEL_USER 0x0001D000
 
+// direccion virtual de memoria compartida on demand
+#define ON_DEMAND_MEM_START_VIRTUAL    0x07000000
+#define ON_DEMAND_MEM_END_VIRTUAL      0x07000FFF
+#define ON_DEMAND_MEM_START_PHYSICAL   0x03000000
+
 static pd_entry_t* kpd = (pd_entry_t*)KERNEL_PAGE_DIR;
 static pt_entry_t* kpt = (pt_entry_t*)KERNEL_PAGE_TABLE_0;
 

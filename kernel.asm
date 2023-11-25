@@ -20,12 +20,20 @@ extern mmu_map_page
 extern mmu_unmap_page
 extern mmu_init_task_dir
 extern copy_page
+extern tss_init
+extern tasks_screen_draw
+extern tasks_init
+extern sched_init
 ; COMPLETAR - Definan correctamente estas constantes cuando las necesiten
 ;
 %define CS_RING_0_SEL (1<<3)
 %define DS_RING_0_SEL (3 << 3)    
 %define STACK_BASE 0x25000
 %define ON_DEMAND_MEM_START_VIRTUAL 0x07000000
+
+%define TSS_INITIAL_0_SEL (11 << 3)
+%define TSS_IDLE_0_SEL (12 << 3)
+
 BITS 16
 ;; Saltear seccion de datos
 jmp start
@@ -184,6 +192,28 @@ modo_protegido:
     mov cr3,edi
     ;print_text_pm restaura_CR3, restaura_CR3_len, 0x07, 0, 880
     
+    ;######## TAREAS
+    ; Carga las tasks gate en la GDT 
+    ; TAREAS INICIALES
+    call tss_init
+
+    call tasks_screen_draw
+
+    mov ax, TSS_INITIAL_0_SEL
+    ltr ax
+
+    call sched_init
+    call tasks_init
+
+    ; CAMBIAMOS PIT 
+    ; ahora se pueden jugar mejor
+    mov ax, 0xFF8; LENTO
+    out 0x40, al 
+    rol ax, 8
+    out 0x40, al
+    
+    jmp TSS_IDLE_0_SEL:0
+
     ; Ciclar infinitamente 
     mov eax, 0xFFFF
     mov ebx, 0xFFFF

@@ -42,8 +42,8 @@
 
 #define GDT_CODE_0_SEL (GDT_IDX_CODE_0<<3)
 #define GDT_DATA_0_SEL (GDT_IDX_DATA_0<<3)
-#define GDT_CODE_3_SEL (GDT_IDX_CODE_3<<3)||0x3
-#define GDT_DATA_3_SEL (GDT_IDX_DATA_3<<3)||0x3
+#define GDT_CODE_3_SEL (GDT_IDX_CODE_3<<3)|3
+#define GDT_DATA_3_SEL (GDT_IDX_DATA_3<<3)|3
 
 
 // Macros para trabajar con segmentos de la GDT.
@@ -61,22 +61,26 @@
 #define GDT_BASE_HIGH(base) (uint8_t)((((uint32_t)(base)) >> 24) & 0xFF)
 
 /* COMPLETAR - Valores de atributos */ 
-#define DESC_CODE_DATA 0x1
-#define DESC_SYSTEM   0x0
+#define DESC_CODE_DATA 0x1 // 
+#define DESC_SYSTEM    0x0 //
 #define DESC_TYPE_EXECUTE_READ 0xA
 #define DESC_TYPE_READ_WRITE   0x2
-#define DPL_KERNEL 0x0
-#define DPL_USER 0x3
-#define SEG_PRESENT 0x1
-#define AVL 0x0
-#define LONG_MODE_OFF 0
-#define MODE32BITS 1
-#define GRANULARITY4KB 1
-/* COMPLETAR - Tamaños de segmentos */
 
-#define FLAT_SEGM_SIZE GDT_LIMIT_4KIB(817*1024*1024)  
-#define VIDEO_SEGM_SIZE  GDT_LIMIT_4KIB(50*80*2)
+/* COMPLETAR - Tamaños de segmentos */ 
+//#define FLAT_SEGM_SIZE   ??
+//#define VIDEO_SEGM_SIZE  ??
 
+/* DEFINES NUESTROS */
+
+#define GDT_PRIVILEGIO_PROGRAMA 0x3
+#define GDT_LIMITE_0_15 GDT_LIMIT_LOW(GDT_LIMIT_4KIB(817*1024*1024))
+#define GDT_LIMITE_16_19 GDT_LIMIT_HIGH(GDT_LIMIT_4KIB(817*1024*1024))
+#define GDT_OPERANDOS_32 0x1
+#define GDT_GRANULARIDAD_4KB 0x1
+#define GDT_PRIVILEGIO_KERNEL 0x0
+#define DPL_KERNEL 0
+#define DPL_USER 3
+#define SEG_PRESENT 1
 
 /* Direcciones de memoria */
 /* -------------------------------------------------------------------------- */
@@ -87,9 +91,8 @@
 #define KERNEL 0x00001200
 // direccion fisica del buffer de video
 #define VIDEO 0x000B8000
-
-/***************************/
-#define STACK_BASE 0x25000
+// Esta página la usan las tareas para comunicarse con el kernel.
+#define PAGINA_COMPARTIDA_KERNEL_USER 0x0001D000
 
 /* MMU */
 /* -------------------------------------------------------------------------- */
@@ -107,7 +110,6 @@ MMU_ENTRY_PADDR(X)  devuelve la dirección física de la base de un page frame o
 #define CR3_TO_PAGE_DIR(X)  (X & 0xFFFFF000) // nos quedamos con 31-12 bits
 #define MMU_ENTRY_PADDR(X)  (X << 12)
 
-
 #define MMU_P (1 << 0)
 #define MMU_W (1 << 1)
 #define MMU_U (1 << 2)
@@ -120,15 +122,14 @@ MMU_ENTRY_PADDR(X)  devuelve la dirección física de la base de un page frame o
 #define TASK_STACK_BASE   0x08003000
 #define TASK_SHARED_PAGE  0x08003000
 
-// direccion virtual de memoria compartida on demand
-#define ON_DEMAND_MEM_START_VIRTUAL    0x07000000
-#define ON_DEMAND_MEM_END_VIRTUAL      0x07000FFF
-#define ON_DEMAND_MEM_START_PHYSICAL   0x03000000
-
 /* Direcciones fisicas de directorios y tablas de paginas del KERNEL */
 /* -------------------------------------------------------------------------- */
 #define KERNEL_PAGE_DIR     (0x00025000)
 #define KERNEL_PAGE_TABLE_0 (0x00026000)
 #define KERNEL_STACK        (0x00025000)
+
+/* DEFINES TAREAS */
+//#define GDT_IDX_TASK_INITIAL (11)
+#define TSS_INITIAL_0_SEL (GDT_IDX_TASK_INITIAL << 3)
 
 #endif //  __DEFINES_H__
