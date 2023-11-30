@@ -130,7 +130,14 @@ modo_protegido:
     ; Remapeamos puertos del PIC
     call pic_reset
     call pic_enable
-    sti ; habilitamos interrupciones
+    
+    ;OJO con habilitar las INT acá:
+    ; Esta linea no hace falta en tareas ya que
+    ; las iterrupciones se habilitan cuando 
+    ; las tareas modifican el ECFLAGS y prenden el IF.
+    ; Al hacer el sti en este punto quedara ciclando en la tarea idle
+    ; porque todavía no inciamos las tareas.
+    ;sti ; habilitamos interrupciones
     
     ; testear syscall
     int 88
