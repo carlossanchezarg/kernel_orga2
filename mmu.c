@@ -222,7 +222,7 @@ paddr_t mmu_init_task_dir(paddr_t phy_start) {
 
   pt_entry_t* task_PT = (pt_entry_t*) addr_task_PT;
 
-  // Crear las paginas dentro de la task PT ¿para el kernel?
+  // Crear las paginas dentro de la task PT
   for(int i=0; i<1024; i++){
     // Los 20 bits mas significativos de la direccion fisica de la pagina
     task_PT[i].page = i;
@@ -240,8 +240,8 @@ paddr_t mmu_init_task_dir(paddr_t phy_start) {
   mmu_map_page(cr3, (vaddr_t) (TASK_STACK_BASE - PAGE_SIZE), mmu_next_free_user_page(), MMU_U | MMU_W | MMU_P);
 
   // Mapear una pagina de memoria compartida TASK_SHARED_PAGE -->shared
-  // Atributos: 0000000 | User:1 | Read:0 | Present:1
-  mmu_map_page(cr3, (vaddr_t) TASK_SHARED_PAGE, PAGINA_COMPARTIDA_KERNEL_USER, MMU_U|MMU_P);
+  // Atributos: 0000000 | User:1 | Read/Write:1 | Present:1
+  mmu_map_page(cr3, (vaddr_t) TASK_SHARED_PAGE, PAGINA_COMPARTIDA_KERNEL_USER, MMU_U|MMU_W|MMU_P);
 
   return cr3;
 
@@ -256,7 +256,7 @@ bool page_fault_handler(vaddr_t virt) {
   // En caso de que si, mapear la pagina
   //Chequear que esta en el rango on demand
   if(virt>=ON_DEMAND_MEM_START_VIRTUAL && virt<=ON_DEMAND_MEM_END_VIRTUAL){ 
-    mmu_map_page(rcr3(), virt, ON_DEMAND_MEM_START_PHYSICAL, MMU_W| MMU_P);
+    mmu_map_page(rcr3(), virt, ON_DEMAND_MEM_START_PHYSICAL,MMU_U| MMU_W| MMU_P);
     return true;
   }
   return false;
