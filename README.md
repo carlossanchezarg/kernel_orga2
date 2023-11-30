@@ -27,15 +27,15 @@ Respuestas ejercicios:
       b) el tamaño de ese dato es 48 bits, 16 bits del selector de segmento y 32 bits del offset. Debido al endianess el selector de segmento estará en shed_task_offset, ya que intel emplea litle endian. El offset elegido no tiene ningun efecto, ya que será ignorado.
       c) como se menciono antes al restablecer el contexto de la tarea, inciaremos en el contexto de la interrupción de reloj, el eip apuntará justo despues del jmp far. Son el popad y el iret al final, los que restableceran el contexto que tenia la tarea antes de ser desalojada.
 
- [x] 14) a) crea una una nueva TSS en memoria para una tarea de usuario y carga una nueva entrada en la GDT que apunta a dicho TSS. 
+ - [x] 14) a) crea una una nueva TSS en memoria para una tarea de usuario y carga una nueva entrada en la GDT que apunta a dicho TSS. 
  b) El gdt_id es el indice dentro de la GDT, para convertirlo en un selector de segmento debemos shiftear, desplazando hacia la izquierda, agregando 3 bits nuevos que corresponderan a los 3 bits menos significativos, que son los flags TI y RPL del selector de segmento, todos cero en nuestro caso.
- [x] 15) a) El área de memoria shared es un area de memoria del kernel que todas la tareas tienen mapeado y pueden leer, de esta manera el kernel puede comunicarse con las tareas.
+ - [x] 15) a) El área de memoria shared es un area de memoria del kernel que todas la tareas tienen mapeado y pueden leer, de esta manera el kernel puede comunicarse con las tareas.
       b) Porque cada tarea tiene un mapeo de memoria diferentes.Si una tarea escribiera en su sección data podria estar escribiendo un area de memoria de otra tarea.
  [x] 16) a) Este es el punto de entrada del program y no se puede hacer un ret, ya que no hay ningún lugar hacia donde retornar, con lo que se llama a task, la cual limpia la pantalla y luego queda loopenadno al final hasta que llega la interrupción de reloj y comienza a funcional el sheduler. 
  b) se podría implementar un handler que nos permita finalizar.
-[x] 18) En el makefile las variables TASKA y TASKB apuntan al codigo de las tareas A y B a ejecutar en el sheduler.
+- [x] 18) En el makefile las variables TASKA y TASKB apuntan al codigo de las tareas A y B a ejecutar en el sheduler.
 
-[x] 19) Se escribe en el área de memoria ondemand, dicha dirección no esta mapeada, y se pide al querere escribir, gracias al handler de interrupción que hicimos en el taller de paginación.
+- [x] 19) Se escribe en el área de memoria ondemand, dicha dirección no esta mapeada, y se pide al querere escribir, gracias al handler de interrupción que hicimos en el taller de paginación.
 
  -----------------------------
 * Para compilar y correr gdb 
