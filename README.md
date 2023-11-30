@@ -24,7 +24,7 @@ Respuestas ejercicios:
 
 
 - [x] 11)       
-   a) La interrupción de reloj hace lo siguiente: - Un pushadd que guarda los registros de propósito general de la tarea interrumpida en la pila de nivel 0 de la tarea.
+   a) La interrupción de reloj hace lo siguiente: - Un pushadd que guarda los registros de propósito general de la tarea interrumpida en la pila de nivel 0 de la tarea.     
        * un pic_finish1 que avisa al PIC que la interrupción fue atendida.   
        * Le pide al scheduler el selector de segmento de la próxima tarea a ejecutar.    
        * Chequea que la próxima tarea a ejecutar sea diferente de la actual.   
