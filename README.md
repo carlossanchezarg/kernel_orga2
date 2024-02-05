@@ -4,7 +4,7 @@
  **Resultados:**  
   | Visualización de la ejecución de 4 tareas en simultaneo:| 
   | :------------:|
-  | ![Ejecuación de 4 tareas](./tareas_kernel.png)  |
+  | ![Ejecuación de 4 tareas](./tareas_kernel.webm)  |
 
 - Completar todo el kernel tomo la mitad de la materia (2 meses aprox.) y consistio en varias etapas de desarrollo incrementales hasta lograr tener un kernel que permita ejecutar varias tareas en simultáneo.
 - **Etapas**:   
